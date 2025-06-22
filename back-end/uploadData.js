@@ -1,11 +1,18 @@
+import "dotenv/config";
 import { ChromaClient } from "chromadb";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import ollama from "ollama";
 import { readData } from "./src/readData.js";
-import "dotenv/config";
+import { scanFilesCountFromCollection } from "./src/scanFilesCountFromCollection.js";
+import { printProgress } from "./src/printProgress.js";
 
 const DB_NAME = process.env.DB_NAME || "my_db";
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || "llama3.2";
+const CHUNKS_COUNT = 64;
+
+const filesCount = await scanFilesCountFromCollection();
+
+printProgress(filesCounter, filesCount);
 
 const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
 
@@ -13,9 +20,33 @@ const chroma = new ChromaClient({ path: "http://localhost:8000" });
 await chroma.deleteCollection({ name: DB_NAME });
 const collection = await chroma.getOrCreateCollection({ name: DB_NAME });
 
-let counter = 0;
+let chunksCounter = 0;
+let filesCounter = 0;
+let chunkBuffer = [];
+
+const embedChunks = async (chunks) => {
+    const inputText = chunks.map((doc) => doc.pageContent);
+
+    const response = await ollama.embed({
+        model: EMBEDDING_MODEL,
+        input: inputText,
+    });
+
+    const records = {
+        ids: inputText.map((_, i) => String(chunksCounter + i)),
+        embeddings: response.embeddings,
+        documents: inputText,
+    };
+
+    await collection.add(records);
+    chunksCounter += chunks.length;
+
+    printProgress(filesCounter, filesCount);
+};
 
 const embedFile = async (fileData) => {
+    filesCounter++;
+
     if (fileData === "") return;
 
     const data = JSON.parse(fileData);
@@ -31,20 +62,17 @@ const embedFile = async (fileData) => {
     const docs = await splitter.createDocuments([text]);
 
     for await (let doc of docs) {
-        const response = await ollama.embed({
-            model: EMBEDDING_MODEL,
-            input: doc.pageContent,
-        });
+        chunkBuffer.push(doc);
 
-        const record = {
-            ids: [String(counter)],
-            embeddings: [response.embeddings[0]],
-            documents: [doc.pageContent],
-        };
+        if (chunkBuffer.length >= CHUNKS_COUNT) {
+            await embedChunks(chunkBuffer);
+            chunkBuffer = [];
+        }
+    }
 
-        await collection.add(record);
-        counter++;
+    if (filesCount === filesCounter && chunkBuffer.length > 0) {
+        await embedChunks(chunkBuffer);
     }
 };
 
-await readData(embedFile);
+await readData(embedFile, filesCount);

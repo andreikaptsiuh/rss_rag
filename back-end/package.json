@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "uploadData": "node ./uploadData.js",
-        "runServer": "node ./server.js",
+        "server": "node ./server.js",
         "prettier": "npx prettier . --write",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
