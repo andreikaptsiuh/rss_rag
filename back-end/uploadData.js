@@ -7,7 +7,7 @@ import { scanFilesCountFromCollection } from "./src/scanFilesCountFromCollection
 import { printProgress } from "./src/printProgress.js";
 
 const DB_NAME = process.env.DB_NAME || "my_db";
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || "llama3.2";
+const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || "nomic-embed-text";
 const CHUNKS_COUNT = 64;
 
 const filesCount = await scanFilesCountFromCollection();
