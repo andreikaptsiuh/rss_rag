@@ -40,13 +40,13 @@ export const QuestionField = ({ sendMessage }) => {
                 className="peer w-full h-16 rounded-l-lg border-1 border-gray-600 resize-none, p-2.5"
                 style={{ resize: "none" }}
                 name="question"
-                placeholder="Задать вопрос"
+                placeholder="Enter question"
                 value={question}
                 onChange={changeQuestionHandler}
                 disabled={isLoading}
             />
             <button
-                className="rounded-r-lg border-1 border-gray-600"
+                className="rounded-r-lg border-1 border-gray-600 min-w-20"
                 onClick={sendQuestion}
             >
                 {isLoading ? (
@@ -56,7 +56,7 @@ export const QuestionField = ({ sendMessage }) => {
                         <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
                     </div>
                 ) : (
-                    "Отправить"
+                    "Send"
                 )}
             </button>
         </div>
