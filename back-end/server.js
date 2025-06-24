@@ -42,7 +42,7 @@ app.post("/ask", async (req, res) => {
     const context = result.documents[0].join("\n");
 
     // Вызов LLaMA через Ollama
-    const prompt = `Context:\n${context}\n\nQuery: ${query}\n\nОтвет:`;
+    const prompt = `Context:\n${context}\n\nQuery: ${query}\n\nResponse:`;
 
     const response = await axios.post(
         "http://localhost:11434/api/generate",

@@ -1,5 +1,5 @@
 export const printProgress = (processedFiles, totalFiles) => {
-    const barLength = 30;
+    const barLength = 50;
 
     const ratio = processedFiles / totalFiles;
     const percent = (ratio * 100).toFixed(2);

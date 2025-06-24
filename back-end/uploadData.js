@@ -12,17 +12,17 @@ const CHUNKS_COUNT = 64;
 
 const filesCount = await scanFilesCountFromCollection();
 
-printProgress(filesCounter, filesCount);
-
 const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
 
 const chroma = new ChromaClient({ path: "http://localhost:8000" });
-await chroma.deleteCollection({ name: DB_NAME });
+// await chroma.deleteCollection({ name: DB_NAME });
 const collection = await chroma.getOrCreateCollection({ name: DB_NAME });
 
 let chunksCounter = 0;
 let filesCounter = 0;
 let chunkBuffer = [];
+
+printProgress(filesCounter, filesCount);
 
 const embedChunks = async (chunks) => {
     const inputText = chunks.map((doc) => doc.pageContent);
@@ -49,17 +49,17 @@ const embedFile = async (fileData) => {
 
     if (fileData === "") return;
 
-    const data = JSON.parse(fileData);
+    // const data = JSON.parse(fileData);
 
-    let text = "";
+    // let text = "";
 
-    for (let field in data) {
-        if (typeof data[field] === "string") {
-            text += data[field] + "\n";
-        }
-    }
+    // for (let field in data) {
+    //     if (typeof data[field] === "string") {
+    //         text += data[field] + "\n";
+    //     }
+    // }
 
-    const docs = await splitter.createDocuments([text]);
+    const docs = await splitter.createDocuments([fileData]);
 
     for await (let doc of docs) {
         chunkBuffer.push(doc);
