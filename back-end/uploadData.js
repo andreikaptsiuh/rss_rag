@@ -49,16 +49,6 @@ const embedFile = async (fileData) => {
 
     if (fileData === "") return;
 
-    // const data = JSON.parse(fileData);
-
-    // let text = "";
-
-    // for (let field in data) {
-    //     if (typeof data[field] === "string") {
-    //         text += data[field] + "\n";
-    //     }
-    // }
-
     const docs = await splitter.createDocuments([fileData]);
 
     for await (let doc of docs) {
